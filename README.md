@@ -33,116 +33,62 @@ The **Product Recommendation App** is designed to enhance user engagement for eC
 
 ### Other Tools
 - GitHub: Version control and hosting the repository
-- Vercel: For frontend deployment (optional)
-- Render/Elastic Beanstalk: For backend deployment (optional)
+- Vercel: For frontend deployment
 
 ## Setup Guide
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/product-recommendation-app.git
-cd product-recommendation-app
+git clone https://github.com/heyujjwal/RecommenderApp.git
 ```
 
 ### 2. Install Dependencies
-
-**Frontend:**
 ```bash
-cd frontend
-npm install
-```
-
-**Backend:**
-```bash
-cd backend
 npm install
 ```
 
 ### 3. Environment Variables
-Create a `.env` file in the backend directory and include the following:
+Create a `.env` file in the root directory and include the following:
 ```env
-SUPABASE_URL=your-supabase-url
-SUPABASE_KEY=your-supabase-key
+VITE_SUPABASE_ANON_KEY=your-supabase-key
+VITE_SUPABASE_URL=your-supabase-url
 ```
 
 ### 4. Start the App
 
-**Frontend:**
 ```bash
-cd frontend
-npm start
-```
-
-**Backend:**
-```bash
-cd backend
 npm run dev
 ```
 
 ### 5. Access the App
-- Frontend: Visit http://localhost:3000
-- Backend: Ensure the API is running on http://localhost:5000
+- Locally Visit http://localhost:5173
 
 ## Folder Structure
 ```bash
-product-recommendation-app/
-├── frontend/
+RecommenderApp/
+|   ├── node_modules
 │   ├── src/
 │   │   ├── components/  # React components
-│   │   ├── hooks/       # Custom React hooks
-│   │   ├── pages/       # Page components
-│   │   ├── styles/      # TailwindCSS styles
+│   │   ├── lib/supabase.ts
 │   │   ├── App.tsx      # Root app component
-│   │   └── index.tsx    # React entry point
-│   └── package.json     # Frontend dependencies
-├── backend/
-│   ├── src/
-│   │   ├── controllers/ # API controllers
-│   │   ├── models/      # Database models
-│   │   ├── routes/      # Express routes
-│   │   └── server.ts    # Express server
-│   └── package.json     # Backend dependencies
+│   │   └── main.tsx    # React entry point
+│   └── package.json     # dependencies
+|   |___supabase/
+|       ├── migration/   # database tables setup and integration
 └── README.md            # Documentation
 ```
 
 ## Key Functionalities
 
 ### 1. Tracking Pixel
-The tracking pixel logs user activity (views, hovers, clicks) via an invisible React component:
+The tracking pixel logs user activity (views, hovers, click/detailed_view) via an invisible React component.
 
-```tsx
-useEffect(() => {
-  const trackActivity = async () => {
-    // API call to log activity
-    await axios.post('/api/track', { userId, activityType, productId });
-  };
-  trackActivity();
-}, [activityType, productId]);
-```
 
 ### 2. Dynamic Recommendations
-Recommendations are generated based on user activity stored in the database. Example logic:
-
-```ts
-const getRecommendations = async (userId) => {
-  const userActivity = await db.getUserActivity(userId);
-  return generateRecommendations(userActivity); // Custom recommendation algorithm
-};
-```
+Recommendations are generated based on user activity stored in the supabase database.
 
 ### 3. Popup with Discounts
-The popup dynamically shows recommended products with configurable discounts:
-
-```tsx
-const [showPopup, setShowPopup] = useState(false);
-
-useEffect(() => {
-  const timer = setTimeout(() => setShowPopup(true), 5000); // Show popup after 5 seconds
-  return () => clearTimeout(timer);
-}, []);
-
-return showPopup && <Popup product={recommendedProduct} discount={10} />;
-```
+The popup dynamically shows recommended products with configurable discounts.
 
 ## Screenshots
 1. User Activity Tracking
@@ -152,30 +98,17 @@ return showPopup && <Popup product={recommendedProduct} discount={10} />;
 ## Configuration
 
 ### 1. Discount Value
-Update the discount percentage in the backend:
+Update the discount percentage:
 ```ts
-const discountValue = 10; // Adjustable by the admin
+const discountValue = 10; // Adjustable by the owner of DB
 ```
 
 ### 2. Popup Trigger
-Modify the conditions for showing the popup in the frontend:
-```tsx
-useEffect(() => {
-  const onScroll = () => {
-    if (window.scrollY > 500) setShowPopup(true);
-  };
-  window.addEventListener('scroll', onScroll);
-  return () => window.removeEventListener('scroll', onScroll);
-}, []);
-```
+Modify the conditions for showing the popup in the frontend
 
 ## Demo
-[Link to Live Demo]()
+[Link to Live Demo](https://recommender-app-omega.vercel.app/)
 
-## Future Enhancements
-- Advanced machine learning algorithms for recommendations
-- Multi-language support for global accessibility
-- Integration with Google Analytics for detailed insights
 
 ## Contributing
 Feel free to contribute! Fork the repository and create a pull request for any enhancements or fixes.
