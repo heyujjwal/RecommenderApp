@@ -91,9 +91,19 @@ Recommendations are generated based on user activity stored in the supabase data
 The popup dynamically shows recommended products with configurable discounts.
 
 ## Screenshots
+SignIn/SignUP:
+![image](https://github.com/user-attachments/assets/fb15a928-b637-4c2a-9671-eec373a9b13f)
+HomePage:
+![image](https://github.com/user-attachments/assets/413051cc-63b5-42e9-a1d1-2c90ca166f4e)
+
 1. User Activity Tracking
+![image](https://github.com/user-attachments/assets/2ee307bb-9633-4fcc-b960-5762a7fcfc7d)
+
 2. Product Recommendations
+![image](https://github.com/user-attachments/assets/58ed4a01-88fa-4d02-8342-b8abacd44371)
+
 3. Popup with Discounts
+![image](https://github.com/user-attachments/assets/48a72f02-d66e-4320-aba8-3a0c34591c27)
 
 ## Configuration
 
