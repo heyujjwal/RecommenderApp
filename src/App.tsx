@@ -1,23 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Session } from '@supabase/supabase-js';  // Import Session type
+import { Session } from '@supabase/supabase-js';
 import { Auth } from './components/Auth';
 import { ProductGrid } from './components/ProductGrid';
 import { ProductDetails } from './components/ProductDetails';
 import { RecommendationPopup } from './components/RecommendationPopup';
 import { supabase } from './lib/supabase';
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image_url: string;
-  category: string;
-}
+import { Product } from './types/index';
 
 function App() {
-  const [session, setSession] = useState<Session | null>(null);  // Type the session state
+  const [session, setSession] = useState<Session | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -26,14 +20,21 @@ function App() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      (_event: string, session: Session | null) => { // Explicitly type _event and session
-        setSession(session);
-      }
-    );
+    } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
+      setSession(session);
+    });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const handleProductSelect = async (product: Product) => {
+    setIsLoading(true);
+    // Simulate loading to ensure smooth transition
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setSelectedProduct(product);
+    setShowDetails(true);
+    setIsLoading(false);
+  };
 
   if (!session) {
     return (
@@ -58,17 +59,24 @@ function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {selectedProduct ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center min-h-[300px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+          </div>
+        ) : showDetails && selectedProduct ? (
           <ProductDetails 
             product={selectedProduct} 
-            onClose={() => setSelectedProduct(null)} 
+            onClose={() => {
+              setShowDetails(false);
+              setSelectedProduct(null);
+            }} 
           />
         ) : (
-          <ProductGrid onProductSelect={setSelectedProduct} />
+          <ProductGrid onProductSelect={handleProductSelect} />
         )}
       </main>
 
-      <RecommendationPopup selectedProduct={selectedProduct} />
+      <RecommendationPopup onProductSelect={handleProductSelect} />
     </div>
   );
 }

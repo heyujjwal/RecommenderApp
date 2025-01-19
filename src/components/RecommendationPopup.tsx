@@ -1,22 +1,14 @@
 import { useState, useEffect } from 'react';
 import { X, ShoppingBag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { Product, Discount } from '../types';
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image_url?: string;
-  category: string;
+interface RecommendationPopupProps {
+  onProductSelect: (product: Product) => void;
 }
 
-interface Discount {
-  discount_percent: number;
-}
-
-export const RecommendationPopup = () => {
-  const [isVisible, setIsVisible] = useState(true); // Always visible by default
+export const RecommendationPopup = ({ onProductSelect }: RecommendationPopupProps) => {
+  const [isVisible, setIsVisible] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [discount, setDiscount] = useState<Discount | null>(null);
@@ -55,7 +47,6 @@ export const RecommendationPopup = () => {
         setIsLoading(true);
         setError(null);
 
-        // First try to get user-specific recommendations
         const { data: { user } } = await supabase.auth.getUser();
         let finalProducts: Product[] = [];
 
@@ -80,7 +71,6 @@ export const RecommendationPopup = () => {
           }
         }
 
-        // If no recommendations found, get random products
         if (!finalProducts.length) {
           const { data: randomProducts, error: randomProductsError } = await supabase
             .from('products')
@@ -114,7 +104,6 @@ export const RecommendationPopup = () => {
 
     loadRecommendations();
 
-    // Only start rotation if we have products
     if (products.length > 0) {
       rotationInterval = setInterval(() => {
         setCurrentIndex(current => {
@@ -125,7 +114,7 @@ export const RecommendationPopup = () => {
           }
           return nextIndex;
         });
-      }, 5000); // 5 second rotation
+      }, 5000);
     }
 
     return () => {
@@ -144,16 +133,25 @@ export const RecommendationPopup = () => {
   if (!currentProduct) return null;
 
   return (
-    <div className="fixed lg:bottom-8 lg:right-8 md:bottom-6 md:right-6 bottom-4 right-4 w-full max-w-sm mx-auto bg-white rounded-lg shadow-xl p-6 animate-slide-up z-50">
+    <div 
+      className="fixed lg:bottom-8 lg:right-8 md:bottom-6 md:right-6 bottom-4 right-4 w-full max-w-sm mx-auto bg-white rounded-lg shadow-xl p-6 animate-slide-up z-50"
+      onClick={(e) => {
+        e.preventDefault();
+        onProductSelect(currentProduct);
+      }}
+    >
       <button
-        onClick={() => setIsVisible(false)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsVisible(false);
+        }}
         className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition-colors"
         aria-label="Close recommendations"
       >
         <X size={20} />
       </button>
 
-      <div className="space-y-4">
+      <div className="space-y-4 cursor-pointer">
         <div className="relative aspect-video">
           <img
             src={currentProduct.image_url || '/placeholder-product.jpg'}
@@ -187,7 +185,13 @@ export const RecommendationPopup = () => {
           <span className="text-lg font-bold text-blue-600">
             ${currentProduct.price.toFixed(2)}
           </span>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors inline-flex items-center">
+          <button 
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors inline-flex items-center"
+            onClick={(e) => {
+              e.stopPropagation();
+              onProductSelect(currentProduct);
+            }}
+          >
             <ShoppingBag className="h-4 w-4 mr-2" />
             View Details
           </button>
@@ -197,7 +201,8 @@ export const RecommendationPopup = () => {
           {products.map((_, index) => (
             <button
               key={index}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setCurrentIndex(index);
                 if (products[index]?.id) {
                   loadDiscount(products[index].id);
